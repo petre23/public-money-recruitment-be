@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using VacationRental.Api.BusinessLogic.Bookings;
+using VacationRental.Api.BusinessLogic.Rentals;
 using VacationRental.Api.Models;
 
 namespace VacationRental.Api.Controllers
@@ -9,35 +10,43 @@ namespace VacationRental.Api.Controllers
     [ApiController]
     public class RentalsController : ControllerBase
     {
-        private readonly IDictionary<int, RentalViewModel> _rentals;
+        private readonly IRentalsBL _rentalsBL;
+        private readonly IBookingsBL _bookingsBL;
 
-        public RentalsController(IDictionary<int, RentalViewModel> rentals)
+        public RentalsController(IRentalsBL rentalsBL, IBookingsBL bookingsBL)
         {
-            _rentals = rentals;
+            _rentalsBL = rentalsBL;
+            _bookingsBL = bookingsBL;
         }
 
         [HttpGet]
         [Route("{rentalId:int}")]
         public RentalViewModel Get(int rentalId)
         {
-            if (!_rentals.ContainsKey(rentalId))
+            var rentalToReturn = _rentalsBL.GetRentalById(rentalId);
+
+            if (rentalToReturn == null)
                 throw new ApplicationException("Rental not found");
 
-            return _rentals[rentalId];
+            return rentalToReturn;
         }
 
         [HttpPost]
-        public ResourceIdViewModel Post(RentalBindingModel model)
+        public ResourceIdViewModel Post(RentalBindingModel rentalToAdd)
         {
-            var key = new ResourceIdViewModel { Id = _rentals.Keys.Count + 1 };
+            return _rentalsBL.AddNewRental(rentalToAdd);
+        }
 
-            _rentals.Add(key.Id, new RentalViewModel
+        [HttpPut]
+        [Route("{rentalId:int}")]
+        public ResourceIdViewModel Put(int rentalId, RentalBindingModel rentalUpdateDetails)
+        {
+            if(!_bookingsBL.CanUpdateBookingForChangedRentalDetails(rentalId, _rentalsBL.GetRentalPreparationTimeInDays(rentalId), rentalUpdateDetails))
             {
-                Id = key.Id,
-                Units = model.Units
-            });
+                throw new ApplicationException("Cannot update existing bookings with new preparation time");
+            }
 
-            return key;
+            return _rentalsBL.UpdateRentalDetails(rentalId, rentalUpdateDetails);
         }
     }
 }

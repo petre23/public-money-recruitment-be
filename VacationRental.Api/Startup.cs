@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
+using VacationRental.Api.BusinessLogic.Bookings;
+using VacationRental.Api.BusinessLogic.Calendar;
+using VacationRental.Api.BusinessLogic.Rentals;
 using VacationRental.Api.Models;
 
 namespace VacationRental.Api
@@ -25,9 +28,13 @@ namespace VacationRental.Api
 
             services.AddSwaggerGen(opts => opts.SwaggerDoc("v1", new Info { Title = "Vacation rental information", Version = "v1" }));
 
+            services.AddScoped<IBookingsBL, BookingsBL>();
+            services.AddScoped<IRentalsBL, RentalsBL>();
+            services.AddScoped<ICalendarBL, CalendarBL>();
             services.AddSingleton<IDictionary<int, RentalViewModel>>(new Dictionary<int, RentalViewModel>());
             services.AddSingleton<IDictionary<int, BookingViewModel>>(new Dictionary<int, BookingViewModel>());
-        }
+            services.AddSingleton<IDictionary<int, PreparationTimeViewModel>>(new Dictionary<int, PreparationTimeViewModel>());
+    }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
