@@ -8,6 +8,7 @@ namespace VacationRental.Api.BusinessLogic.Bookings
     {
         BookingViewModel GetBookingById(int bookingId);
         ResourceIdViewModel AddNewBooking(BookingBindingModel bookingDetailsToAdd);
-        int GetBookingAvailableUnits(BookingBindingModel bookingDetailsToCheck);
+        int GetBookingAvailableUnits(BookingBindingModel bookingDetailsToCheck, int rentalPreparationTimeInDays = 0);
+        bool CanUpdateBookingForChangedRentalDetails(int rentalId, int previousPreparationTimeInDays, RentalBindingModel updatedRentalDetails);
     }
 }

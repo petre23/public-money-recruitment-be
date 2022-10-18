@@ -1,6 +1,6 @@
 ﻿namespace VacationRental.Api.Models
 {
-    public class CalendarPreparationTimesViewModel
+    public class CalendarPreparationTimeViewModel
     {
         public int Unit { get; set; }
     }

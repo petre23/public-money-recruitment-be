@@ -45,5 +45,25 @@ namespace VacationRental.Api.BusinessLogic.Rentals
 
             return new ResourceIdViewModel { Id = newRentalId };
         }
+
+        public int GetRentalPreparationTimeInDays(int rentalId)
+        {
+            var rental = GetRentalById(rentalId);
+            return rental != null ? rental.PreparationTimeInDays : 0;
+        }
+
+        public ResourceIdViewModel UpdateRentalDetails(int rentalId, RentalBindingModel rentalToAdd)
+        {
+            var rentalToUpdate = GetRentalById(rentalId);
+            if(rentalToUpdate != null)
+            {
+                rentalToUpdate.Units = rentalToAdd.Units;
+                rentalToUpdate.PreparationTimeInDays = rentalToAdd.PreparationTimeInDays;
+
+                _rentals[rentalId] = rentalToUpdate;
+            }
+
+            return new ResourceIdViewModel { Id = rentalId };
+        }
     }
 }

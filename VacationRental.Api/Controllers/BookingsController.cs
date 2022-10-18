@@ -45,7 +45,8 @@ namespace VacationRental.Api.Controllers
 
             for (var i = 0; i < bookingToAdd.Nights; i++)
             {
-                var bookingAvailableUnits = _bookingsBL.GetBookingAvailableUnits(bookingToAdd);
+                var rentalPreparationTimeInDays = _rentalsBL.GetRentalPreparationTimeInDays(bookingToAdd.RentalId);
+                var bookingAvailableUnits = _bookingsBL.GetBookingAvailableUnits(bookingToAdd, rentalPreparationTimeInDays);
 
                 if (bookingAvailableUnits >= _rentalsBL.GetRentalNumberOfUnits(bookingToAdd.RentalId))
                     throw new ApplicationException("Not available");

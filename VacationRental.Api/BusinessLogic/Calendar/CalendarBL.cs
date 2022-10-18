@@ -8,10 +8,14 @@ namespace VacationRental.Api.BusinessLogic.Calendar
     public class CalendarBL : ICalendarBL
     {
         private readonly IDictionary<int, BookingViewModel> _bookings;
+        private readonly IDictionary<int, PreparationTimeViewModel> _preparationTimes;
 
-        public CalendarBL(IDictionary<int, BookingViewModel> bookings)
+        public CalendarBL(
+            IDictionary<int, BookingViewModel> bookings
+            , IDictionary<int, PreparationTimeViewModel> preparationTimes)
         {
             _bookings = bookings;
+            _preparationTimes = preparationTimes;
         }
 
         public CalendarViewModel GetCalendarViewModelForBookingDetails(int rentalId, DateTime start, int nights)
@@ -39,17 +43,39 @@ namespace VacationRental.Api.BusinessLogic.Calendar
         private CalendarDateViewModel GetNewCalendarDatesWithAddedBookings(DateTime startDate, int nightsToAdd, int rentalId)
         {
             var calendarDate = GetNewCalendarDateViewModelForStartDate(startDate, nightsToAdd);
+            calendarDate.Bookings = GetCalendarBookings(rentalId, calendarDate.Date);
+            calendarDate.PreparationTimes = GetCalendarPreparationTimes(rentalId);
 
+            return calendarDate;
+        }
+
+        private List<CalendarBookingViewModel> GetCalendarBookings(int rentalId, DateTime calendarDate)
+        {
+            var bookingsForCalendar = new List<CalendarBookingViewModel>();
             foreach (var booking in _bookings.Values)
             {
                 if (booking.RentalId == rentalId
                     && booking.Start <= calendarDate.Date && booking.Start.AddDays(booking.Nights) > calendarDate.Date)
                 {
-                    calendarDate.Bookings.Add(new CalendarBookingViewModel { Id = booking.Id });
+                    bookingsForCalendar.Add(new CalendarBookingViewModel { Id = booking.Id, Unit = booking.Unit });
                 }
             }
 
-            return calendarDate;
+            return bookingsForCalendar;
+        }
+
+        private List<CalendarPreparationTimeViewModel> GetCalendarPreparationTimes(int rentalId)
+        {
+            var preparationTimesForCalendar = new List<CalendarPreparationTimeViewModel>();
+            foreach (var preparationTime in _preparationTimes.Values)
+            {
+                if (preparationTime.RentalId == rentalId)
+                {
+                    preparationTimesForCalendar.Add(new CalendarPreparationTimeViewModel { Unit = preparationTime.Unit });
+                }
+            }
+
+            return preparationTimesForCalendar;
         }
 
         private CalendarDateViewModel GetNewCalendarDateViewModelForStartDate(DateTime startDate, int nightsToAdd)
